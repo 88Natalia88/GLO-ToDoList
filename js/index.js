@@ -1,3 +1,5 @@
+'use strict'
+
 const todoControl = document.querySelector('.todo-control');
 const headerInput = document.querySelector('.header-input');
 const todoList = document.querySelector('.todo-list');
@@ -7,19 +9,16 @@ let toDoData = [];
 let titleElement;
 
 
-document.addEventListener("DOMContentLoaded", function() {
-    if (localStorage.getItem('toDoList')) {
-        toDoData = JSON.parse(localStorage.getItem('toDoList')); 
-        render();
-    } else {
-        createTitle();
-    }
-});
-
-
 const render = function(){
     todoList.innerHTML =  '';
     todoCompleted.innerHTML = '';
+
+    if (toDoData.length > 0) {
+        cleanTitle();
+    } else {
+        createTitle();
+    }
+
     toDoData.forEach((item, index)=>{
         const li = document.createElement('li');
 
@@ -44,14 +43,20 @@ const render = function(){
 
         li.querySelector('.todo-remove').addEventListener('click', ()=>{
             toDoData.splice(index, 1);
+            //saveTasksToLocalStorage();
+            setData('toDoList', toDoData);
             render();
         })
 
-        saveTasksToLocalStorage();
-        cleanTitle();
+        //saveTasksToLocalStorage();
+        //cleanTitle();
+        setData('toDoList', toDoData);
     })
 }
 
+
+const setData = (key, value) => localStorage.setItem(key, JSON.stringify(value));
+const getData = (key) => JSON.parse(localStorage.getItem(key));
 
 todoControl.addEventListener('submit', (e)=>{
     e.preventDefault();
@@ -74,22 +79,29 @@ todoControl.addEventListener('submit', (e)=>{
 
 })
 
-function saveTasksToLocalStorage() {
-    localStorage.setItem('toDoList', JSON.stringify(toDoData));
-}
+document.addEventListener("DOMContentLoaded", function() {
+    if (localStorage.getItem('toDoList')) {
+        //toDoData = JSON.parse(localStorage.getItem('toDoList')); 
+        toDoData = getData('toDoList');
+        render();
+    } else {
+        createTitle();
+    }
+});
+
+
+// function saveTasksToLocalStorage() {
+//     localStorage.setItem('toDoList', JSON.stringify(toDoData));
+// }
 
 function createTitle(){
-        const title = document.createElement('h2');
-        title.style.textAlign = 'center';
-        title.innerHTML = "Давай запишем задачи на сегодня!"
-        container.append(title);
-}
-
-function createTitle() {
-    titleElement = document.createElement('h2');
-    titleElement.style.textAlign = 'center';
-    titleElement.innerHTML = "Давай запишем задачи на сегодня!";
-    container.append(titleElement);
+    if (!titleElement) {
+        titleElement = document.createElement('h2');
+        titleElement.style.textAlign = 'center';
+        titleElement.style.color = '#444444';
+        titleElement.innerHTML = "Давай запишем задачи на сегодня!";
+        container.append(titleElement);
+    }
 }
 
 function cleanTitle() {
